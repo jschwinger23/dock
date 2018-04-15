@@ -1,1 +1,2 @@
+-i https://pypi.doubanio.com/simple
 arrow
