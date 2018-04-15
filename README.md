@@ -1,5 +1,5 @@
 # dock
-Docker in Python
+Docker in Python3.6.3
 
 # Steps
 
