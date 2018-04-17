@@ -1,5 +1,8 @@
 import os
 import ctypes
+import ctypes.util
+
+STACK_SIZE = 8096
 
 CLONE_NEWNS = 0x00020000
 CLONE_NEWUTS = 0x04000000
@@ -14,18 +17,22 @@ def runc(command: str, tty: bool):
     commands = command.split()
 
     def child_init():
+        ctypes
         os.system('mount -t proc proc /proc')
         os.execv(commands[0], commands)
         return 0
 
-    child_init = ctypes.CFUNCTYPE(ctypes.c_int)(child_init)
-    child_stack = ctypes.c_char_p(b' ' * 8096)
-    child_stack = ctypes.c_void_p(
-        ctypes.cast(child_stack, ctypes.c_void_p).value + 8096)
-
-    libc = ctypes.CDLL('libc.so.6')
+    libc = ctypes.CDLL(ctypes.util.find_library('c'), use_errno=True)
     child_pid = libc.clone(
-        child_init, child_stack,
+        ctypes.CFUNCTYPE(ctypes.c_int)(child_init),
+        ctypes.c_char_p(
+            ctypes.cast(ctypes.c_char_p(b' ' * STACK_SIZE), ctypes.c_void_p)
+            .value + STACK_SIZE),
         CLONE_NEWUTS | CLONE_NEWIPC | CLONE_NEWPID | CLONE_NEWNS
         | CLONE_NEWNET | SIGCHILD)
-    os.waitpid(child_pid, 0)
+
+    if child_pid < 0:
+        errno = ctypes.get_errno()
+        raise OSError(errno, f'Error run subprocess {command}')
+    else:
+        os.waitpid(child_pid, 0)
