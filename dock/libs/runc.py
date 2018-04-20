@@ -10,6 +10,7 @@ CLONE_NEWIPC = 0x08000000
 CLONE_NEWUSER = 0x10000000
 CLONE_NEWPID = 0x20000000
 CLONE_NEWNET = 0x40000000
+
 SIGCHILD = 17
 
 
@@ -17,7 +18,6 @@ def runc(command: str, tty: bool):
     commands = command.split()
 
     def child_init():
-        ctypes
         os.system('mount -t proc proc /proc')
         os.execv(commands[0], commands)
         return 0
@@ -36,3 +36,4 @@ def runc(command: str, tty: bool):
         raise OSError(errno, f'Error run subprocess {command}')
     else:
         os.waitpid(child_pid, 0)
+        os.system('mount -t proc proc /proc')
