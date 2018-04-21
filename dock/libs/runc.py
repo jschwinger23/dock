@@ -35,4 +35,3 @@ def runc(commands: Tuple[str], tty: bool):
         raise OSError(errno, f'Error run subprocess {commands}')
     else:
         os.waitpid(child_pid, 0)
-        os.system('mount -t proc proc /proc')
