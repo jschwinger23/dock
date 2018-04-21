@@ -1,4 +1,5 @@
 import click
+from typing import Tuple
 
 from .libs.runc import runc
 from .libs.logging import getLogger
@@ -14,6 +15,6 @@ def main():
 @main.command('run')
 @click.option('-i', '--iteractive', is_flag=True)
 @click.option('-t', '--tty', is_flag=True)
-@click.argument('command')
-def run(iteractive: bool, tty: bool, command: str):
-    runc(command, tty=tty)
+@click.argument('commands', nargs=-1)
+def run(iteractive: bool, tty: bool, commands: Tuple[str]):
+    runc(commands, tty=tty)

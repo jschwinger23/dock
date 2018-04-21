@@ -1,6 +1,7 @@
 import os
 import ctypes
 import ctypes.util
+from typing import Tuple
 
 STACK_SIZE = 8096
 
@@ -14,9 +15,7 @@ CLONE_NEWNET = 0x40000000
 SIGCHILD = 17
 
 
-def runc(command: str, tty: bool):
-    commands = command.split()
-
+def runc(commands: Tuple[str], tty: bool):
     def child_init():
         os.system('mount -t proc proc /proc')
         os.execv(commands[0], commands)
@@ -33,7 +32,7 @@ def runc(command: str, tty: bool):
 
     if child_pid < 0:
         errno = ctypes.get_errno()
-        raise OSError(errno, f'Error run subprocess {command}')
+        raise OSError(errno, f'Error run subprocess {commands}')
     else:
         os.waitpid(child_pid, 0)
         os.system('mount -t proc proc /proc')
