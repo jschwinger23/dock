@@ -15,8 +15,19 @@ CLONE_NEWNET = 0x40000000
 SIGCHILD = 17
 
 
-def runc(commands: Tuple[str], tty: bool):
+def pivot_root(new_root):
+    new_root = new_root.rstrip('/')
+    os.system(f'mount --bind {new_root} {new_root}')
+    os.makedirs(f'{new_root}/.pivot', exist_ok=True)
+    os.system(f'pivot_root {new_root} {new_root}/.pivot')
+    os.chdir('/')
+    os.system(f'umount -l /.pivot')
+    os.rmdir('/.pivot')
+
+
+def runc(image, commands: Tuple[str], tty: bool):
     def child_init():
+        pivot_root(image)
         os.system('mount -t proc proc /proc')
         os.execv(commands[0], commands)
         return 0

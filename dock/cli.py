@@ -20,8 +20,9 @@ def main():
 @click.option('-t', '--tty', is_flag=True)
 @click.option('-m', '--memory', type=str, default=virtual_memory().total)
 @click.option('-cpu', '--cpushare', type=int, default=1024)
+@click.argument('image', type=click.Path(exists=True))
 @click.argument('commands', nargs=-1)
-def run(iteractive: bool, tty: bool, memory: str, cpushare: str,
+def run(iteractive: bool, tty: bool, memory: str, cpushare: str, image,
         commands: Tuple[str]):
     with Cgroups(memory=memory, cpushare=cpushare):
-        runc(commands, tty)
+        runc(image, commands, tty)
